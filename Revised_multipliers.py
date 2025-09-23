@@ -51,12 +51,9 @@ all_parameters = list(a) + list(a_conj)
 
 # Jacobian matrix
 jacobian_matrix = []
-for poly in sym_polys[:m]:  # Just first 3 polynomials to avoid clutter
+for poly in sym_polys[:m]:  
     jacobian_row = []
     for param in all_parameters:
-        # This would be the partial derivative ∂poly/∂param
-        # But since poly contains symbolic multipliers, this is zero
-        # In the actual computation, you'd substitute the multiplier expressions first
         partial_deriv = sp.diff(poly, param)
         jacobian_row.append(partial_deriv)
     jacobian_matrix.append(jacobian_row)
