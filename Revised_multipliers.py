@@ -18,6 +18,9 @@ def F(w):
         result *= (w - a[i]) / (1 - w * a_conj[i])
     return result
 
+
+
+
 # Define the multiplier (F ∘ F)'(z)
 def F_composition_F_prime(z_i):
     """Compute (F∘F)'(z) = derivative of F(F(z)) with respect to z"""
@@ -46,7 +49,15 @@ multipliers = sp.symbols('x0:%d'%m)
 sym_polys = [elementary_symmetric_poly(k, multipliers) for k in range(1, m)]
 
 # Take the jacobian with respect to the parameters a_1 through a_n
-all_parameters = list(a) + list(a_conj)
+# `a` and `a_conj` may be single sympy.Symbol or tuples of symbols depending on how
+# the user defined them earlier. Build a flat list of parameters robustly.
+def ensure_list_of_symbols(x):
+    if isinstance(x, (list, tuple)):
+        return list(x)
+    else:
+        return [x]
+
+all_parameters = ensure_list_of_symbols(a) + ensure_list_of_symbols(a_conj)
 
 
 # Jacobian matrix
