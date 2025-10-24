@@ -21,7 +21,7 @@ def sym(poly, m0):
 
 #CHANGE ONLY num
 num = 7
-m = sp.symbols(f'm1:{num}')  # m1, m2, ..., m7
+m = sp.symbols(f'm1:{num+1}')  # m1, m2, ..., m7
 
 # Function to compute k-th elementary symmetric polynomial
 def elementary_symmetric(vars, k):
