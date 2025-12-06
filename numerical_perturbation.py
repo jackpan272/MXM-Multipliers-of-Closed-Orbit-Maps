@@ -38,26 +38,30 @@ class NumericalMultiplierAnalysis:
         """Numerically compute f'(z) using finite differences."""
         dz = complex(step, step)
         f_plus = self.map_f(z + dz, a)
-        f_minus = self.map_f(z - dz, a)
-        return (f_plus - f_minus) / (2 * dz)
+        f_minus = self.map_f(z, a)
+        return (f_plus - f_minus) / (dz)
     
     def compose_f_twice(self, z: complex, a: np.ndarray) -> complex:
         """Compute f(f(z))"""
         return self.map_f(self.map_f(z, a), a)
     
     def compose_f_twice_derivative(self, z: complex, a: np.ndarray,
-                                   step: float = 1e-8) -> complex:
-        """Numerically compute (f∘f)'(z)"""
-        dz = complex(step, step)
-        f_of_f_plus = self.compose_f_twice(z + dz, a)
-        f_of_f_minus = self.compose_f_twice(z - dz, a)
-        return (f_of_f_plus - f_of_f_minus) / (2 * dz)
+                                step: float = 1e-8) -> complex:
+  
+        fz = self.map_f(z, a)                    # Compute f(z)
+        f_prime_z = self.map_f_derivative(z, a)  # Compute f'(z)
+        f_prime_fz = self.map_f_derivative(fz, a)  # Compute f'(f(z))
+    
+    
+        return f_prime_fz * f_prime_z
+
+
     
     def find_period2_points(self, a: np.ndarray, 
-                           num_guesses: int = 50) -> List[complex]:
+                           num_guesses: int = 500) -> List[complex]:
         """Find period-2 points numerically."""
         period2_points = []
-        tolerance = 1e-6
+        tolerance = 1e-12
         
         for _ in range(num_guesses):
             theta = 2 * np.pi * np.random.random()
@@ -93,7 +97,7 @@ class NumericalMultiplierAnalysis:
             
             except Exception:
                 continue
-        
+ 
         return period2_points
     
     def compute_multipliers(self, period2_points: List[complex],
@@ -104,6 +108,13 @@ class NumericalMultiplierAnalysis:
             for z in period2_points
         ])
         return multipliers
+
+
+ 
+    
+
+    
+
     
     def perturb_parameter(self, a: np.ndarray, 
                          perturbation_magnitude: float) -> np.ndarray:
@@ -278,3 +289,5 @@ class NumericalMultiplierAnalysis:
         print(f"{'='*70}\n")
         
         return test_results
+
+   
