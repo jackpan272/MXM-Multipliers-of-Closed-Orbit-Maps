@@ -37,8 +37,7 @@ def find_period2_points(a, n_samples):
     candidates = []
 
     # uniform random samples in the disk
-    i = 0
-    while(i<n_samples):
+    for _ in range(n_samples ):  # oversample to account for rejections
         r = np.sqrt(np.random.rand())
         t = 2*np.pi*np.random.rand()
         z0 = r * np.exp(1j * t)
@@ -56,7 +55,6 @@ def find_period2_points(a, n_samples):
             continue
 
         candidates.append(z_root)
-        i += 1
 
     # cluster solutions that are numerically identical
     final_points = []
@@ -105,7 +103,7 @@ if __name__ == "__main__":
     0.1 - 0.5j,
     -0.2 - 0.3j
     ])
-    n = 2
+    n = 3
     #number_of_multipliers = n**2 + 2*n  - (n**2 + n)/2
     pts = find_period2_points(a, n_samples=2000)
     print("Period-2 points:")
