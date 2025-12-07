@@ -32,12 +32,13 @@ def newton_complex(g, z0, a, tol=1e-13, max_iter=500):
         z = z_new
     return None
 
-def find_period2_points(a, n_samples=200):
+def find_period2_points(a, n_samples):
     """Search unit disk for period-2 points."""
     candidates = []
 
     # uniform random samples in the disk
-    for _ in range(n_samples):
+    i = 0
+    while(i<n_samples):
         r = np.sqrt(np.random.rand())
         t = 2*np.pi*np.random.rand()
         z0 = r * np.exp(1j * t)
@@ -55,6 +56,7 @@ def find_period2_points(a, n_samples=200):
             continue
 
         candidates.append(z_root)
+        i += 1
 
     # cluster solutions that are numerically identical
     final_points = []
@@ -103,7 +105,8 @@ if __name__ == "__main__":
     0.1 - 0.5j,
     -0.2 - 0.3j
     ])
-    
+    n = 2
+    #number_of_multipliers = n**2 + 2*n  - (n**2 + n)/2
     pts = find_period2_points(a, n_samples=2000)
     print("Period-2 points:")
     for p in pts:
@@ -117,44 +120,44 @@ if __name__ == "__main__":
     print("f(f(z)) values of found period-2 points:", compose_f_twice_vals)
 
     z, m = sp.symbols('z m')
-    n = 2
     #a = sp.symbols(f'a1:{n+1}', complex=True)
     #a_conj = [sp.conjugate(ai) for ai in a]
     #a_bar = sp.symbols(f'a_bar1:{n+1}', complex=True)
 
-    def FF(w):
+    def FF(w, a_par=a):
         expr = w
         for i in range(n):
             expr *= (w - a[i]) / (1 - w * a[i].conjugate())
         return expr
 
     F2 = FF(FF(z))
-    F2 = F2.ratsimp()
+    #F2 = F2.ratsimp()
     F2 = sp.cancel(F2)
 
     F2_prime = sp.diff(F2, z)# get the polynomial
-    print([F2_prime.subs(z, zi).evalf() for zi in pts])
-    print()
-    print()
     old_m = [F2_prime.subs(z, zi).evalf() for zi in pts]
+    print(old_m)
+    print()
+    print()
 
     a_perturbed = perturb_a(a, eps=0.05)
     print("Perturbed a values:", a_perturbed)
+    pert_pts = []
+    for z0 in pts:  # old period-2 points
+        z_new = newton_complex(F, z0, a_perturbed)
+        if z_new is None or abs(z_new) >= 1:
+            # fallback: keep old value if Newton fails (optional)
+            z_new = z0
+        pert_pts.append(z_new)
 
-    def FF_pert(w):
-        expr = w
-        for i in range(n):
-            expr *= (w - a_perturbed[i]) / (1 - w * a_perturbed[i].conjugate())
-        return expr
-    F2_pert = FF_pert(FF_pert(z))
-    F2_pert = F2_pert.ratsimp()
-    F2_pert = sp.cancel(F2_pert)
-    F2_prime_pert = sp.diff(F2_pert, z)# get the polynomial
-    pert_pts = find_period2_points(a_perturbed, n_samples=2000)
-    print("Pert poitns",len(pert_pts))
-    new_m = [F2_prime_pert.subs(z, zi).evalf() for zi in pert_pts]
+    F2_par = FF(FF(z, a_par=a_perturbed))
+    F2_par = sp.cancel(F2_par)
+    F2_prime_par = sp.diff(F2_par, z)# get the polynomial
+    #pert_pts = find_period2_points(a_perturbed, n_samples=number_of_multipliers)
+    new_m = [F2_prime_par.subs(z, zi).evalf() for zi in pert_pts]
     print()
     print()
     print("Comparison of multipliers before and after perturbation:")
     print(np.array(new_m)-np.array(old_m))
+    print("length of new ", len(new_m), " length of old ", len(old_m))
 
