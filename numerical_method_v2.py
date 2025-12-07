@@ -159,3 +159,16 @@ if __name__ == "__main__":
     print(np.array(new_m)-np.array(old_m))
     print("length of new ", len(new_m), " length of old ", len(old_m))
 
+    print("Checking significance of changes in multipliers:")
+    delta_a = abs(a_perturbed - a)        # elementwise absolute change
+    rel_change_a = delta_a / abs(a)       # elementwise relative change
+    max_rel_change_a = np.max(rel_change_a)
+    mean_rel_change_a = np.mean(rel_change_a)
+
+    delta_m = np.abs(np.array(new_m) - np.array(old_m))
+    rel_change_m = delta_m / np.abs(old_m)
+
+    # Example: mean relative change in multipliers per mean relative change in parameters
+    sensitivity_ratio = np.mean(rel_change_m) / np.mean(rel_change_a)
+    print("Sensitivity ratio:", sensitivity_ratio)
+
